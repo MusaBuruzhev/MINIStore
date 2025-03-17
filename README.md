@@ -27,7 +27,7 @@ npm run dev
 ```sh
 npm run build
 ```
-#  MINIStoreFOTO
+# 📸
 
 ![Снимок экрана 2025-03-17 093903](https://github.com/user-attachments/assets/cbd3de36-3b0a-44c0-a7a2-acae92489229)
 
