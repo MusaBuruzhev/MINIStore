@@ -97,7 +97,7 @@ export default {
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.175);
   transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
@@ -106,8 +106,8 @@ export default {
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.104);
 }
 
 .image-container {
@@ -125,7 +125,7 @@ export default {
 }
 
 .product-card:hover img {
-  transform: scale(1.03);
+  
 }
 
 .content {

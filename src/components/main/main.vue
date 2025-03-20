@@ -1,6 +1,7 @@
 <template>
   <div>
     <slid />
+    <button class="skidka" @click="scrollToProducts2">%</button>
     <div class="main-page">
       <div class="search-and-filters">
         <div class="search-bar">
@@ -49,7 +50,6 @@
           <button class="reset-filters" @click="resetFilters">Сбросить фильтры</button>
         </div>
       </div>
-
       <div class="product-list">
         <ProductCard
           v-for="product in paginatedProducts"
@@ -57,14 +57,12 @@
           :product="product"
         />
       </div>
-
       <!-- Панель администратора -->
       <div v-if="isAdmin" class="admin-panel">
         <button @click="toggleAddForm" class="add-product-button">
           <span class="plus-icon">+</span> Добавить товар
         </button>
         <button @click="toggleDeleteForm" class="delete-product-button">Удалить товар</button>
-
         <!-- Форма добавления -->
         <transition name="fade">
           <div v-if="showAddForm" class="admin-form">
@@ -82,7 +80,6 @@
             </div>
           </div>
         </transition>
-
         <!-- Форма удаления -->
         <transition name="fade">
           <div v-if="showDeleteForm" class="admin-form">
@@ -243,7 +240,7 @@ export default {
       if (this.searchQuery.trim()) filtered = filtered.filter(product => product.title.toLowerCase().includes(this.searchQuery.toLowerCase()));
       switch (this.sortOption) {
         case "priceAsc": return filtered.sort((a, b) => a.price - b.price);
-        case "priceDesc": return filtered.sort((a, b) => b.price - b.price);
+        case "priceDesc": return filtered.sort((a, b) => b.price - a.price);
         case "titleAsc": return filtered.sort((a, b) => a.title.localeCompare(b.title));
         case "titleDesc": return filtered.sort((a, b) => b.title.localeCompare(a.title));
         default: return filtered;
@@ -269,6 +266,15 @@ export default {
     },
   },
   methods: {
+    scrollToProducts2() {
+      
+      const sale = document.querySelector('.sale-banner');
+      if (sale) {
+        sale.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        console.error('Секция .sale-banner не найдена');
+      }
+    },
     async fetchProducts() {
       try {
         const response = await fetch("https://67bc472bed4861e07b39e4ca.mockapi.io/product");
@@ -324,7 +330,6 @@ export default {
     changePage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
-        this.$nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
       }
     },
     goToSaleProduct() {
@@ -415,7 +420,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 :root {
@@ -707,12 +711,14 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
+  scroll-margin-top: 110px;
 }
 
 .pagination-container {
   padding: 2rem 0;
   display: flex;
   justify-content: center;
+  margin-top: -80px;
 }
 
 .pagination {
@@ -742,8 +748,9 @@ export default {
 }
 
 .pagination button.active {
-  background: var(--secondary-dark);
-  color: var(--white);
+  background-color: #a3a3a3; /* Цвет фона для активной страницы */
+  color: white; /* Цвет текста для активной страницы */
+  border-color: #a3a3a3; /* Цвет границы для активной страницы */
 }
 
 .pagination-arrow {
@@ -789,6 +796,28 @@ export default {
   font-weight: 500;
   color: #777;
   transition: transform 0.3s ease;
+}
+.skidka {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #181818;
+  color: white;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  position: fixed;
+  bottom: 20px; /* Расположение кнопки от нижнего края экрана */
+  right: 20px; /* Расположение кнопки от правого края экрана */
+  z-index: 5;
+}
+@media (max-width: 600px) {
+  .skidka {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
 }
 
 .sale-title {

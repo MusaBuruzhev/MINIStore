@@ -11,7 +11,11 @@
       ></video>
       <div class="slide-content">
         <h2>Your Products are great.</h2>
-        <button @click="scrollToProducts">Shop Product</button>
+        <div>
+          <button class="shop" @click="scrollToProducts">Shop Product</button>
+          
+        </div>
+        
       </div>
     </div>
     <div class="progress-indicator">
@@ -140,9 +144,9 @@ video {
   font-family: 'Lato', sans-serif;
   font-weight: 400;
 }
-.slide-content button {
+.shop {
   padding: 10px 20px;
-  background: #000000;
+  background: #181818;
   color: white;
   border: none;
   border-radius: 5px;
@@ -153,7 +157,10 @@ video {
   margin-top: 20px;
   font-family: 'Lato', sans-serif;
   font-weight: 400;
+
 }
+
+
 .progress-indicator {
   position: absolute;
   bottom: 10px;
