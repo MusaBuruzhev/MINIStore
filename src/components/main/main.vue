@@ -1394,5 +1394,7 @@ export default {
       transform: translateX(calc(-120px * 7 - 10px * 7));
     }
   }
+
+  
 }
 </style>
