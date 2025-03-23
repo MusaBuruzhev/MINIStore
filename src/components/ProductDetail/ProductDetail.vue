@@ -5,7 +5,7 @@
       <div class="onn">
         <img :src="currentImage" :alt="product.name" @error="imageError" v-if="!imageFailed" />
         <img v-else src="https://s3.amazonaws.com/images.ecwid.com/images/50826040/2645201940.jpg" alt="Запасное изображение" />
-        <div class="thumbnail-container" v-if="![17, 18, 19].includes(Number(product.id))">
+        <div class="thumbnail-container" v-if="hasMultipleImages">
           <img
             v-for="(phone, index) in productImages"
             :key="index"
@@ -121,6 +121,9 @@ export default {
     };
   },
   computed: {
+    hasMultipleImages() {
+      return [this.product.phone2, this.product.phone3, this.product.phone4].some(phone => phone && phone.img);
+    },
     productImages() {
       const images = [
         this.product.phone1,
