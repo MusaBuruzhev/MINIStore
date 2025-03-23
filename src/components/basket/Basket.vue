@@ -363,14 +363,15 @@ h1 {
   padding: 0;
 }
 .cart-item {
-  display: flex;
-  align-items: center;
-  padding: 20px;
-  margin: 15px 0;
-  background: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    margin: 15px 0;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px #0000000d;
+    transition: transform .3s ease, box-shadow .3s ease;
+    justify-content: space-around;
 }
 .cart-item:hover {
   transform: translateY(-5px);
