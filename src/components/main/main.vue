@@ -56,14 +56,15 @@
           :key="product.id"
           :product="product"
         />
+        <div v-if="paginatedProducts.length === 0" class="no-products">
+          Товаров нет
+        </div>
       </div>
-      <!-- Панель администратора -->
       <div v-if="isAdmin" class="admin-panel">
         <button @click="toggleAddForm" class="add-product-button">
           <span class="plus-icon">+</span> Добавить товар
         </button>
         <button @click="toggleDeleteForm" class="delete-product-button">Удалить товар</button>
-        <!-- Форма добавления -->
         <transition name="fade">
           <div v-if="showAddForm" class="admin-form">
             <h3>Добавить новый товар</h3>
@@ -80,7 +81,6 @@
             </div>
           </div>
         </transition>
-        <!-- Форма удаления -->
         <transition name="fade">
           <div v-if="showDeleteForm" class="admin-form">
             <h3>Удалить товар</h3>
@@ -116,7 +116,7 @@
           {{ page }}
         </button>
         <button
-          :disabled="currentPage === totalPages"
+          :disabled="currentPage === totalPages || totalPages === 0"
           @click="changePage(currentPage + 1)"
           class="pagination-arrow"
         >
@@ -124,7 +124,6 @@
         </button>
       </div>
     </div>
-    <!-- Остальные секции остаются без изменений -->
     <div class="sale-banner">
       <div class="sale-content">
         <div class="sale-text">
@@ -207,7 +206,7 @@ export default {
       selectedCategory: "",
       selectedBrands: [],
       currentPage: 1,
-      itemsPerPage: 8,
+      itemsPerPage: 12,
       searchQuery: "",
       isLoading: false,
       sortOption: "default",
@@ -247,7 +246,7 @@ export default {
       }
     },
     totalPages() {
-      return Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+      return Math.ceil(this.filteredProducts.length / this.itemsPerPage) || 1; // Минимум 1 страница
     },
     paginatedProducts() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -267,7 +266,6 @@ export default {
   },
   methods: {
     scrollToProducts2() {
-      
       const sale = document.querySelector('.sale-banner');
       if (sale) {
         sale.scrollIntoView({ behavior: 'smooth' });
@@ -296,7 +294,7 @@ export default {
           phone3: product.phone3,
           phone4: product.phone4,
           name: product.name,
-          discountPrice: product.id === "2" ? (product.price * 0.9).toFixed(2) : null
+          discountPrice: product.id === "20" ? (product.price * 0.9).toFixed(2) : null // Скидка на ID 20
         }));
         localStorage.setItem('adminProducts', JSON.stringify(this.products));
       } catch (error) {
@@ -333,19 +331,21 @@ export default {
       }
     },
     goToSaleProduct() {
-      const saleProduct = this.products.find(product => product.id === "2");
+      const saleProduct = this.products.find(product => product.id === "20");
       if (saleProduct) {
         const productWithDiscount = { ...saleProduct, price: saleProduct.discountPrice || saleProduct.price };
         localStorage.setItem('currentProduct', JSON.stringify(productWithDiscount));
-        this.$router.push({ path: `/product/2` });
+        this.$router.push({ path: `/product/20` });
+      } else {
+        alert('Товар со скидкой не найден!');
       }
     },
     subscribe() {
       if (!this.email) {
-        this.$swal("Ошибка", "Пожалуйста, введите email.", "error");
+        alert("Пожалуйста, введите email.");
         return;
       }
-      this.$swal("Успех", `Вы подписались на рассылку с email: ${this.email}`, "success");
+      alert(`Вы подписались на рассылку с email: ${this.email}`);
       this.email = "";
     },
     toggleAddForm() {
@@ -379,10 +379,10 @@ export default {
         });
         localStorage.setItem('adminProducts', JSON.stringify(this.products));
         this.showAddForm = false;
-        this.$swal('Успех', 'Товар успешно добавлен!', 'success');
+        alert('Товар успешно добавлен!');
       } catch (error) {
         console.error('Ошибка при добавлении:', error);
-        this.$swal('Ошибка', 'Не удалось добавить товар в API. Сохранено локально.', 'warning');
+        alert('Не удалось добавить товар в API. Сохранено локально.');
         const newId = Date.now().toString();
         this.products.push({
           id: newId,
@@ -405,10 +405,10 @@ export default {
         this.products = this.products.filter(product => product.id !== this.deleteProductId);
         localStorage.setItem('adminProducts', JSON.stringify(this.products));
         this.showDeleteForm = false;
-        this.$swal('Успех', 'Товар успешно удален!', 'success');
+        alert('Товар успешно удален!');
       } catch (error) {
         console.error('Ошибка при удалении:', error);
-        this.$swal('Ошибка', 'Не удалось удалить товар из API. Удалено локально.', 'warning');
+        alert('Не удалось удалить товар из API. Удалено локально.');
         this.products = this.products.filter(product => product.id !== this.deleteProductId);
         localStorage.setItem('adminProducts', JSON.stringify(this.products));
         this.showDeleteForm = false;
@@ -420,7 +420,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 :root {
   --primary-dark: #272727;
@@ -438,7 +437,7 @@ export default {
 .add-product-button {
   position: fixed;
   bottom: 30px;
-  right: 30px;
+  left: 30px;
   padding: 14px 25px;
   background: linear-gradient(135deg, #007bff, #00c4ff);
   color: white;
@@ -467,7 +466,7 @@ export default {
 .delete-product-button {
   position: fixed;
   bottom: 80px;
-  right: 30px;
+  left: 30px;
   padding: 14px 25px;
   background: linear-gradient(135deg, #dc3545, #ff6666);
   color: white;
@@ -601,6 +600,7 @@ export default {
     transform: translate(-50%, -50%);
   }
 }
+
 .main-page {
   padding: 2rem;
   max-width: var(--max-width);
@@ -608,7 +608,7 @@ export default {
   display: grid;
   grid-template-columns: minmax(250px, 1fr) 3fr;
   gap: 2rem;
-  min-height: 80vh;
+
   color: var(--primary-dark);
 }
 
@@ -694,8 +694,8 @@ export default {
 }
 
 .reset-filters {
-  background: var(--secondary-dark);
-  color: var(--white);
+  background-color:black;
+  color: white;
   border: none;
   padding: 0.75rem;
   border-radius: 4px;
@@ -704,21 +704,30 @@ export default {
 }
 
 .reset-filters:hover {
-  background: var(--primary-dark);
+  background-color: rgb(87, 87, 87);
 }
 
 .product-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-  scroll-margin-top: 110px;
+    grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+    gap: 1rem;
+    scroll-margin-top: 110px;
+
+}
+
+.no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.5rem;
+  color: var(--secondary-dark);
+  padding: 2rem;
 }
 
 .pagination-container {
   padding: 2rem 0;
   display: flex;
   justify-content: center;
-  margin-top: -80px;
+  margin-top: 20px;
 }
 
 .pagination {
@@ -740,17 +749,18 @@ export default {
   cursor: pointer;
   font-size: 1rem;
   color: var(--primary-dark);
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .pagination button:hover:not(:disabled) {
   background: #f0f0f0;
+  transform: scale(1.1);
 }
 
 .pagination button.active {
-  background-color: #a3a3a3; /* Цвет фона для активной страницы */
-  color: white; /* Цвет текста для активной страницы */
-  border-color: #a3a3a3; /* Цвет границы для активной страницы */
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
 }
 
 .pagination-arrow {
@@ -797,6 +807,7 @@ export default {
   color: #777;
   transition: transform 0.3s ease;
 }
+
 .skidka {
   width: 60px;
   height: 60px;
@@ -808,10 +819,11 @@ export default {
   font-weight: 400;
   font-size: 20px;
   position: fixed;
-  bottom: 20px; /* Расположение кнопки от нижнего края экрана */
-  right: 20px; /* Расположение кнопки от правого края экрана */
+  bottom: 20px;
+  right: 20px;
   z-index: 5;
 }
+
 @media (max-width: 600px) {
   .skidka {
     width: 50px;
@@ -876,7 +888,6 @@ export default {
   transform: translateY(-50%) scale(1.02);
 }
 
-/* Стили для Latest Posts */
 .latest-posts {
   max-width: var(--max-width);
   margin: 50px auto;
@@ -966,7 +977,6 @@ export default {
   flex-grow: 0;
 }
 
-/* Стили для Subscribe Us */
 .subscribe-us {
   display: flex;
   flex-direction: row;
@@ -1072,7 +1082,6 @@ export default {
   background: #5a96b0;
 }
 
-/* Стили для Mini Slider */
 .mini-slider {
   max-width: var(--max-width);
   margin: 40px auto;
@@ -1114,51 +1123,41 @@ export default {
   .sale-content {
     padding: 0 1.5rem;
   }
-  
   .sale-text {
     margin-left: 5%;
   }
-  
   .sale-title {
     font-size: 4rem;
     max-width: 500px;
   }
-  
   .sale-image {
     max-width: 40%;
   }
-  
   .posts-container {
     flex-direction: column;
     align-items: flex-start;
   }
-  
   .post-card {
     width: 100%;
     max-width: 420px;
   }
-  
   .subscribe-us {
     width: 100%;
     padding: 60px 80px;
     gap: 80px;
   }
-  
   .mini-slider {
     padding: 0 1.5rem;
     height: 220px;
   }
-  
   .slider-card {
     width: 180px;
     height: 180px;
     margin-right: 25px;
   }
-  
   .slider-track {
     width: calc(180px * 14);
   }
-  
   @keyframes scroll {
     0% {
       transform: translateX(0);
@@ -1173,74 +1172,60 @@ export default {
   .main-page {
     grid-template-columns: 1fr;
   }
-  
   .product-list {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
-  
   .sale-content {
     flex-direction: column;
     justify-content: center;
     gap: 1.5rem;
     text-align: center;
   }
-  
   .sale-text {
     margin-left: 0;
     align-items: center;
   }
-  
   .sale-title {
     font-size: 3.5rem;
     max-width: 100%;
   }
-  
   .sale-image {
     position: static;
     transform: none;
     max-width: 60%;
   }
-  
   .subscribe-us {
     flex-direction: column;
     padding: 40px 50px;
     height: auto;
     gap: 40px;
   }
-  
   .subscribe-title {
     width: 100%;
     text-align: center;
   }
-  
   .subscribe-subtitle {
     width: 100%;
     text-align: center;
   }
-  
   .subscribe-form {
     flex-direction: column;
     width: 100%;
   }
-  
   .subscribe-input {
     width: 100%;
   }
-  
   .mini-slider {
     height: 200px;
   }
-  
   .slider-card {
     width: 160px;
     height: 160px;
     margin-right: 20px;
   }
-  
   .slider-track {
     width: calc(160px * 14);
   }
-  
   @keyframes scroll {
     0% {
       transform: translateX(0);
@@ -1255,78 +1240,61 @@ export default {
   .main-page {
     padding: 1rem;
   }
-  
   .pagination {
     padding: 0.25rem 0.75rem;
   }
-  
   .pagination button {
     min-width: 2rem;
     height: 2rem;
     font-size: 0.9rem;
   }
-  
   .sale-banner {
     height: auto;
     padding: 2rem 0;
   }
-  
   .sale-discount {
     font-size: 1.125rem;
   }
-  
   .sale-title {
     font-size: 2.5rem;
   }
-  
   .sale-button {
     padding: 0.75rem 2.5rem;
     width: 150px;
     height: 45px;
   }
-  
   .sale-image {
     max-width: 70%;
   }
-  
   .latest-posts-title {
     font-size: 24px;
   }
-  
   .post-card {
     height: auto;
   }
-  
   .post-title {
     font-size: 18px;
   }
-  
   .subscribe-us {
     padding: 30px 20px;
   }
-  
   .subscribe-title {
     font-size: 24px;
   }
-  
   .subscribe-subtitle {
     font-size: 14px;
   }
-  
   .mini-slider {
     height: 180px;
   }
-  
   .slider-card {
     width: 140px;
     height: 140px;
     margin-right: 15px;
   }
-  
   .slider-track {
     width: calc(140px * 14);
   }
-  
   @keyframes scroll {
     0% {
       transform: translateX(0);
@@ -1341,51 +1309,41 @@ export default {
   .sale-title {
     font-size: 1.875rem;
   }
-  
   .sale-button {
     padding: 0.5rem 2rem;
     width: 130px;
     height: 40px;
   }
-  
   .sale-button span {
     font-size: 0.75rem;
   }
-  
   .post-title {
     width: 100%;
     font-size: 16px;
   }
-  
   .post-date {
     font-size: 12px;
   }
-  
   .subscribe-input {
     padding: 8px 0px 8px 20px;
     height: 45px;
   }
-  
   .subscribe-button {
     padding: 12px 30px;
     width: 140px;
     height: 45px;
   }
-  
   .mini-slider {
     height: 160px;
   }
-  
   .slider-card {
     width: 120px;
     height: 120px;
     margin-right: 10px;
   }
-  
   .slider-track {
     width: calc(120px * 14);
   }
-  
   @keyframes scroll {
     0% {
       transform: translateX(0);
@@ -1394,7 +1352,5 @@ export default {
       transform: translateX(calc(-120px * 7 - 10px * 7));
     }
   }
-
-  
 }
 </style>

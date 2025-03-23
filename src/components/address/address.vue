@@ -36,6 +36,7 @@ export default {
   padding: 20px;
   text-align: center;
   font-family: Arial, sans-serif;
+  height: 570px;
 }
 
 h1 {

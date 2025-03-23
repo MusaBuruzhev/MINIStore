@@ -9,9 +9,9 @@
       <div class="Maga">
         <div class="CenterCaps">
           <div class="navig">
-            <router-link to="/Companies">О  компании</router-link>
-            <router-link to="">Как купить</router-link>
-            <router-link to="">Оплата и доставка</router-link>
+            <router-link to="/Companies">О компании</router-link>
+          
+            <router-link to="/delivery">Оплата и доставка</router-link>
             <router-link to="/Guarantee">Гарантия</router-link>
             <router-link to="/Contacts">Контакты</router-link>
           </div>
@@ -42,7 +42,6 @@
       </div>
     </div>
     
-    <!-- Блок индикатора страницы, отображается только если не на главной странице -->
     <div v-if="$route.path !== '/'" class="page-indicator">
       <h1 class="page-title">{{ currentPageTitle }}</h1>
       <div class="breadcrumb">Home > {{ currentPageTitle }}</div>
@@ -55,23 +54,19 @@ export default {
   name: 'Header',
   data() {
     return {
-      searchQuery: '', // Строка поиска
-      userAvatar: null, // Аватар пользователя
+      searchQuery: '',
+      userAvatar: null,
     };
   },
   computed: {
-    // Проверка авторизации пользователя
     isAuthenticated() {
       return localStorage.getItem('isAuthenticated') === 'true';
     },
-    // Имя пользователя
     userName() {
       const user = JSON.parse(localStorage.getItem('currentUser')) || {};
       return user.name || '';
     },
-    // Вычисляемое свойство для названия текущей страницы
     currentPageTitle() {
-      // Сопоставление путей маршрутов с названиями страниц
       const routeTitles = {
         '/Profile': 'Профиль',
         '/basket': 'Корзина',
@@ -84,10 +79,10 @@ export default {
         '/data-protection': 'Защита данных',
         '/Guarantee': 'Гарантия',
         '/Contacts': 'Контакты',
-        '/Companies': 'О компании'
+        '/Companies': 'О компании',
+        '/delivery': 'Оплата и доставка'
       };
       
-      // Получаем текущий путь и возвращаем соответствующее название
       const path = this.$route.path;
       if (path.startsWith('/product/')) {
         return 'Детали продукта';
@@ -96,14 +91,12 @@ export default {
     }
   },
   mounted() {
-    this.loadUserAvatar(); // Загружаем аватар при монтировании компонента
+    this.loadUserAvatar();
   },
   methods: {
-    // Обработчик поиска
     onSearch() {
       this.$emit('update-search', this.searchQuery);
     },
-    // Загрузка аватара пользователя из localStorage
     loadUserAvatar() {
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userEmail = localStorage.getItem('userEmail');
@@ -120,7 +113,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300&display=swap');
 
-/* Стили для навигационных ссылок */
+
 .hhjaa a {
   height: 50px;
   margin-top: 20px;
@@ -129,27 +122,18 @@ export default {
   font-weight: 400;
 }
 
-/* Основной контейнер хедера */
 .hed {
   width: 80%;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 10px;
-  position: relative; /* Добавляем позиционирование для правильного размещения */
+  position: relative;
 }
 
-/* Позиционирование элементов */
-.nn1 {
-  margin-top: 40px;
-}
-.nn2 {
-  margin-top: 39px;
-}
-.nn3 {
-  margin-top: 39px;
-}
+.nn1 { margin-top: 40px; }
+.nn2 { margin-top: 39px; }
+.nn3 { margin-top: 39px; }
 
-/* Верхняя часть */
 .TopCaps {
   width: 100%;
   height: 50px;
@@ -168,15 +152,13 @@ export default {
   font-weight: 400;
 }
 
-/* Центральный flex-контейнер */
 .CentFlex {
   display: flex;
   width: 100%;
-  height: 175px; /* Фиксируем высоту основного хедера */
+  height: 175px;
   margin-top: -30px;
 }
 
-/* Контейнер логотипа */
 .Conteyer {
   width: 20%;
   margin-top: 12px;
@@ -188,7 +170,6 @@ export default {
   height: 100%;
 }
 
-/* Центральная часть */
 .CenterCaps {
   height: 100px;
   margin-top: 30px;
@@ -197,7 +178,6 @@ export default {
   justify-content: flex-end;
 }
 
-/* Навигация */
 .navig {
   margin-top: 20px;
   margin-right: 40px;
@@ -211,7 +191,6 @@ export default {
   font-weight: 400;
 }
 
-/* Поиск */
 .Search {
   display: flex;
   align-items: center;
@@ -253,7 +232,6 @@ export default {
   background-size: contain;
 }
 
-/* Информация в центре */
 .CenterInfa {
   width: 12%;
   height: 100px;
@@ -265,7 +243,6 @@ export default {
   text-decoration: none;
 }
 
-/* Логотип */
 .LogoImg {
   width: 70%;
   height: 42%;
@@ -276,13 +253,11 @@ export default {
   margin-top: 40px;
 }
 
-/* Правая часть */
 .Maga {
   width: 75%;
   margin-left: auto;
 }
 
-/* Контейнер аватара */
 .avatar-container {
   display: flex;
   flex-direction: column;
@@ -300,51 +275,40 @@ export default {
   color: #333;
 }
 
-/* Стили для индикатора страницы */
 .page-indicator {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px 0; /* Добавляем отступы сверху и снизу */
-  gap: 10px;
-  width: 100%; 
-  height: 281px;
-  background: #EDF1F3;
-  flex: none;
-  order: 1;
-  flex-grow: 0;
-  margin-top: 20px; /* Отступ от верхнего блока */
-  margin-bottom: 20px; /* Отступ от нижнего контента */
+  padding: 15px 0;
+  gap: 8px;
+  width: 100%;
+  height: 150px; /* Уменьшили высоту */
+  background: #e6f0f5; /* Более мягкий фон */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Легкая тень */
+  border-radius: 10px; /* Скругленные углы */
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .page-title {
-  height: 95px;
+  height: auto;
   font-family: 'Jost', sans-serif;
-  font-style: normal;
   font-weight: 300;
-  font-size: 83px;
-  line-height: 114%;
+  font-size: 50px; 
+  line-height: 120%;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: #272727;
-  flex: none;
-  order: 0;
-  flex-grow: 0;
 }
 
 .breadcrumb {
-  height: 22px;
+  height: auto; 
   font-family: 'Lato', sans-serif;
-  font-style: normal;
   font-weight: 300;
-  font-size: 16px;
+  font-size: 14px; 
   line-height: 138%;
   letter-spacing: 0.03em;
-  text-transform: capitalize;
-  color: #3A3A3A;
-  flex: none;
-  order: 1;
-  flex-grow: 0;
+  color: #4a4a4a; 
 }
 </style>

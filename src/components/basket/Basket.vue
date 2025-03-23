@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Корзина -->
     <div class="basket">
       <div class="header">
         <h1>Корзина</h1>
@@ -51,8 +50,6 @@
         Удалить выбранные
       </button>
     </div>
-
-    <!-- Блок Subscribe Us -->
     <div class="subscribe-us">
       <div class="subscribe-text">
         <h3 class="subscribe-title">Subscribe Us now</h3>
@@ -63,8 +60,6 @@
         <button class="subscribe-button" @click="subscribe">Subscribe</button>
       </div>
     </div>
-
-    <!-- Слайдер -->
     <div class="mini-slider">
       <div class="slider-track">
         <div class="slider-card">
@@ -88,7 +83,6 @@
         <div class="slider-card">
           <img src="@/assets/nau5.png" alt="Slide 7" class="slider-image" />
         </div>
-        <!-- Дублируем для бесконечной прокрутки -->
         <div class="slider-card">
           <img src="@/assets/play.png" alt="Slide 1" class="slider-image" />
         </div>
@@ -120,10 +114,10 @@ export default {
   data() {
     return {
       cartItems: [],
-      fallbackImageUrl: "https://s3.amazonaws.com/images.ecwid.com/images/50826040/2645201940.jpg",
+      fallbackImageUrl: "https://via.placeholder.com/150",
       selectedTotal: 0,
       hasSelectedItems: false,
-      email: "", // Для подписки
+      email: "",
     };
   },
   computed: {
@@ -133,7 +127,7 @@ export default {
     currentUser() {
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userEmail = localStorage.getItem('userEmail');
-      return users.find(user => user.email === userEmail) || null;
+      return users.find((user) => user.email === userEmail) || null;
     },
     canCheckout() {
       if (!this.currentUser || !this.currentUser.balance) return false;
@@ -169,20 +163,34 @@ export default {
     },
     async checkout() {
       if (!this.canCheckout) {
-        this.$swal('Ошибка', 'На вашем балансе недостаточно средств. Пополните счет через профиль.', 'error');
+        this.$swal({
+          title: "Недостаточно средств",
+          text: "На вашем балансе недостаточно средств. Пополните счет через профиль.",
+          icon: "error",
+          confirmButtonText: "ОК",
+        });
         return;
       }
+
       const orders = JSON.parse(localStorage.getItem('orders')) || [];
+      const selectedItems = this.cartItems.filter((item) => item.selected);
+      const totalAmount = this.selectedTotal;
+      const savedPaymentData = JSON.parse(localStorage.getItem('savedPaymentData')) || {};
+
       const newOrder = {
         userId: this.currentUser.id,
-        items: this.cartItems
-          .filter((item) => item.selected)
-          .map((item) => ({ id: item.id, quantity: item.quantity })),
+        items: selectedItems.map((item) => ({
+          id: item.id,
+          quantity: item.quantity,
+        })),
+        date: new Date().toISOString(),
+        amount: totalAmount,
+        paymentMethod: savedPaymentData.selectedMethod || 'Баланс аккаунта',
       };
+
       orders.push(newOrder);
       localStorage.setItem('orders', JSON.stringify(orders));
 
-      // Обновляем баланс пользователя
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const updatedUsers = users.map((user) =>
         user.email === this.userEmail
@@ -191,16 +199,24 @@ export default {
       );
       localStorage.setItem('users', JSON.stringify(updatedUsers));
 
-      // Удаляем выбранные товары из корзины
       const cart = JSON.parse(localStorage.getItem('cart')) || {};
-      if (cart[this.userEmail]) {
-        cart[this.userEmail] = cart[this.userEmail].filter((item) => !item.selected);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        this.cartItems = this.cartItems.filter(item => !item.selected);
-        this.updateSelectedItems();
-      }
+      this.cartItems = this.cartItems.filter((item) => !item.selected);
+      cart[this.userEmail] = this.cartItems.map((item) => {
+        const { selected, ...rest } = item;
+        return rest;
+      });
+      localStorage.setItem('cart', JSON.stringify(cart));
 
-      this.$swal('Успех', 'Заказ успешно оформлен!', 'success');
+      this.updateSelectedItems();
+
+      this.$swal({
+        title: "Успех!",
+        text: "Заказ успешно оформлен! Подробности доступны в разделе 'Оплата и доставка'",
+        icon: "success",
+        confirmButtonText: "ОК",
+      }).then(() => {
+        this.$router.push('/delivery');
+      });
     },
     increaseItemQuantity(item) {
       const cart = JSON.parse(localStorage.getItem('cart')) || {};
@@ -228,22 +244,28 @@ export default {
     },
     removeSelectedItems() {
       this.$swal({
-        title: 'Удалить выбранные товары?',
-        text: 'Вы уверены, что хотите удалить выбранные товары из корзины?',
-        icon: 'warning',
+        title: "Вы уверены?",
+        text: "Вы действительно хотите удалить выбранные товары из корзины?",
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Да, удалить',
-        cancelButtonText: 'Отмена',
+        confirmButtonText: "Да, удалить",
+        cancelButtonText: "Отмена",
       }).then((result) => {
         if (result.isConfirmed) {
           const cart = JSON.parse(localStorage.getItem('cart')) || {};
-          if (cart[this.userEmail]) {
-            cart[this.userEmail] = cart[this.userEmail].filter((item) => !item.selected);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            this.cartItems = this.cartItems.filter(item => !item.selected);
-            this.updateSelectedItems();
-            this.$swal('Удалено!', 'Выбранные товары удалены из корзины.', 'success');
-          }
+          this.cartItems = this.cartItems.filter((item) => !item.selected);
+          cart[this.userEmail] = this.cartItems.map((item) => {
+            const { selected, ...rest } = item;
+            return rest;
+          });
+          localStorage.setItem('cart', JSON.stringify(cart));
+          this.updateSelectedItems();
+          this.$swal({
+            title: "Удалено!",
+            text: "Выбранные товары удалены из корзины.",
+            icon: "success",
+            confirmButtonText: "ОК",
+          });
         }
       });
     },
@@ -252,17 +274,25 @@ export default {
     },
     subscribe() {
       if (!this.email) {
-        this.$swal("Error", "Please enter your email.", "error");
+        this.$swal({
+          title: "Ошибка",
+          text: "Пожалуйста, введите ваш email.",
+          icon: "error",
+          confirmButtonText: "ОК",
+        });
         return;
       }
-      this.$swal("Success", `You have subscribed with email: ${this.email}`, "success");
+      this.$swal({
+        title: "Успех!",
+        text: `Вы подписались с email: ${this.email}`,
+        icon: "success",
+        confirmButtonText: "ОК",
+      });
       this.email = "";
     },
   },
 };
 </script>
-
-
 
 <style scoped>
 .basket {
@@ -399,7 +429,7 @@ h1 {
   flex: none;
   order: 0;
   flex-grow: 0;
-  border-radius: 50%; /* Круглые кнопки */
+  border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
@@ -422,7 +452,7 @@ h1 {
 .item-price {
   font-size: 20px;
   font-weight: 600;
-  color: #72AEC8; /* Цвет цены */
+  color: #72AEC8;
   width: 150px;
   text-align: right;
   white-space: nowrap;
@@ -445,11 +475,9 @@ h1 {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
 }
-
-/* Стили для Mini Slider */
 .mini-slider {
   max-width: 100%;
-  margin: 40px auto 20px; /* Отступ сверху и небольшой снизу перед Subscribe Us */
+  margin: 40px auto 20px;
   padding: 0 2rem;
   overflow: hidden;
   height: 240px;
@@ -472,15 +500,9 @@ h1 {
   border-radius: 10px;
 }
 @keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(calc(-200px * 7 - 30px * 7));
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-200px * 7 - 30px * 7)); }
 }
-
-/* Стили для Subscribe Us */
 .subscribe-us {
   display: flex;
   flex-direction: row;
@@ -578,8 +600,6 @@ h1 {
 .subscribe-button:hover {
   background: #5a96b0;
 }
-
-/* Медиа-запросы для адаптивности */
 @media (max-width: 1024px) {
   .subscribe-us {
     flex-direction: column;
@@ -615,16 +635,11 @@ h1 {
     width: calc(160px * 14);
   }
   @keyframes scroll {
-    100% {
-      transform: translateX(calc(-160px * 7 - 20px * 7));
-    }
+    100% { transform: translateX(calc(-160px * 7 - 20px * 7)); }
   }
 }
-
 @media (max-width: 768px) {
-  .basket {
-    padding: 20px;
-  }
+  .basket { padding: 20px; }
   .cart-item-details {
     flex-direction: column;
     align-items: flex-start;
@@ -635,21 +650,15 @@ h1 {
     width: 100%;
     text-align: left;
   }
-  .mini-slider {
-    height: 180px;
-  }
+  .mini-slider { height: 180px; }
   .slider-card {
     width: 140px;
     height: 140px;
     margin-right: 15px;
   }
-  .slider-track {
-    width: calc(140px * 14);
-  }
+  .slider-track { width: calc(140px * 14); }
   @keyframes scroll {
-    100% {
-      transform: translateX(calc(-140px * 7 - 15px * 7));
-    }
+    100% { transform: translateX(calc(-140px * 7 - 15px * 7)); }
   }
 }
 </style>

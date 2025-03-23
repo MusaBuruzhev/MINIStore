@@ -1,4 +1,3 @@
-//ProductCard
 <template>
   <div class="product-card" @click="goToProductDetail">
     <div v-if="isLoading" class="skeleton-loader">
@@ -16,6 +15,7 @@
           @error="imageError"
         />
         <img v-else :src="fallbackImageUrl" alt="Запасное изображение" />
+        <div class="image-overlay">Подробнее</div>
       </div>
       <div class="content">
         <div class="title-container">
@@ -98,7 +98,6 @@ export default {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.175);
-  transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -106,14 +105,13 @@ export default {
 }
 
 .product-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.104);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .image-container {
   position: relative;
   width: 100%;
-  height: 180px;
+  height: 160px;
   overflow: hidden;
 }
 
@@ -121,11 +119,33 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .product-card:hover img {
-  
+  opacity: 0.7;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0;
+  transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+.product-card:hover .image-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 1;
 }
 
 .content {
@@ -150,10 +170,6 @@ export default {
   text-overflow: ellipsis;
 }
 
-.product-card:hover h3 {
-  color: #555;
-}
-
 .description {
   font-size: 0.75rem;
   color: #666;
@@ -173,6 +189,12 @@ export default {
   font-weight: 600;
   color: #007bff;
   margin: 0;
+  transition: color 0.3s ease, font-size 0.3s ease;
+}
+
+.product-card:hover .price {
+  color: #0056b3;
+  font-size: 1rem;
 }
 
 .skeleton-loader {
@@ -182,7 +204,7 @@ export default {
 
 .skeleton-image {
   width: 100%;
-  height: 180px;
+  height: 160px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
@@ -212,7 +234,7 @@ export default {
   }
   
   .image-container {
-    height: 140px;
+    height: 120px;
   }
   
   .product-card h3 {
@@ -227,16 +249,24 @@ export default {
     font-size: 0.85rem;
   }
   
+  .product-card:hover .price {
+    font-size: 0.9rem;
+  }
+  
   .content {
     padding: 0.75rem;
   }
   
   .skeleton-image {
-    height: 140px;
+    height: 120px;
   }
   
   .skeleton-loader {
     padding: 0.75rem;
+  }
+  
+  .image-overlay {
+    font-size: 0.85rem;
   }
 }
 </style>

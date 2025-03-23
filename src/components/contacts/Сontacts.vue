@@ -50,6 +50,7 @@ export default {
   max-width: 900px;
   margin: 30px auto;
   font-family: Arial, sans-serif;
+  height: 550px;
 }
 
 .contacts-block h1 {

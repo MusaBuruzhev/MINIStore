@@ -1,5 +1,5 @@
-//Card replenishment.vue
 <template>
+  <!-- Оставляем template без изменений -->
   <div class="card-replenishment">
     <h2>Пополнение баланса</h2>
     <div class="payment-methods">
@@ -11,7 +11,6 @@
       </div>
       <div class="payment-method vtb" @click="selectMethod('ВТБ')">
         <img src="/src/components/Bank/1200x630wa.png" alt="ВТБ" />
-
       </div>
       <div class="payment-method ozon" @click="selectMethod('Озон Банк')">
         <img src="/src/components/Bank/6528604949.jpg" alt="Озон Банк" />
@@ -118,27 +117,12 @@ export default {
       this.selectedMethod = method;
     },
     validateExpiryDate(date) {
-      if (!date.includes('/')) {
-        return false;
-      }
-
+      if (!date.includes('/')) return false;
       const [month, year] = date.split('/');
-
-      if (!/^\d+$/.test(month) || !/^\d+$/.test(year)) {
-        return false;
-      }
-
+      if (!/^\d+$/.test(month) || !/^\d+$/.test(year)) return false;
       const cardMonth = parseInt(month, 10);
       const cardYear = parseInt(year, 10);
-
-      if (cardMonth < 1 || cardMonth > 12) {
-        return false;
-      }
-
-      if (cardYear < 0 || cardYear > 99) {
-        return false;
-      }
-
+      if (cardMonth < 1 || cardMonth > 12 || cardYear < 0 || cardYear > 99) return false;
       return true;
     },
     async submitCardReplenishment() {
@@ -158,18 +142,29 @@ export default {
         });
         return;
       }
+
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userEmail = localStorage.getItem('userEmail');
       const userIndex = users.findIndex(user => user.email === userEmail);
+
       if (userIndex !== -1) {
+        // Обновляем баланс пользователя
         users[userIndex].balance = (users[userIndex].balance || 0) + Number(this.amount);
+        
+        // Сохраняем последние 4 цифры карты в данных пользователя
+        const lastFourDigits = this.cardNumber.slice(-4);
+        users[userIndex].lastCardDigits = lastFourDigits;
+
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
+
+        // Успешное уведомление
         await this.$swal({
           icon: 'success',
           title: 'Успех!',
           text: 'Вы успешно пополнили баланс!',
         });
+
         if (this.saveData) {
           const savedData = {
             cardholderName: this.cardholderName,
@@ -219,8 +214,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
+/* Стили остаются без изменений */
 .mor {
   margin-top: 15px;
 }
@@ -243,29 +238,10 @@ export default {
   text-align: center;
 }
 
-.card-replenishment {
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 25px;
-  border: 2px solid #e0e0e0;
-  border-radius: 20px;
-  background-color: #ffffff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  text-align: left;
-}
-
-.card-replenishment h2 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center;
-}
-
 .payment-methods {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Две колонки */
-  gap: 15px; /* Расстояние между элементами */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
   margin-bottom: 25px;
 }
 
@@ -276,11 +252,11 @@ export default {
   padding: 20px;
   border: 2px solid #e0e0e0;
   border-radius: 15px;
-  background-color: transparent; /* Прозрачный фон */
+  background-color: transparent;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  height: 150px; /* Увеличиваем высоту блока */
+  height: 150px;
 }
 
 .payment-method:hover {
@@ -289,14 +265,13 @@ export default {
 }
 
 .payment-method img {
-  max-width: 100%; /* Ограничение по ширине */
-  max-height: 100%; /* Ограничение по высоте */
-  object-fit: contain; /* Сохраняет пропорции изображения */
-  width: 80%; /* Увеличиваем размер картинки */
-  height: 80%; /* Увеличиваем размер картинки */
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  width: 80%;
+  height: 80%;
 }
 
-/* Убираем цветовые стили для отдельных банков */
 .payment-method.sbp,
 .payment-method.tinkoff,
 .payment-method.vtb,
@@ -338,10 +313,6 @@ export default {
   outline: none;
 }
 
-.save-data {
-  margin-bottom: 20px;
-}
-
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -362,7 +333,6 @@ export default {
   -webkit-appearance: none;
   margin: 0;
 }
-
 
 button {
   display: inline-block;

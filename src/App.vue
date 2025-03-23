@@ -22,14 +22,18 @@ export default {
       showFooter: true,
     };
   },
+  created() {
+    this.showHeader = this.$route.path !== '/reg';
+    this.showFooter = this.$route.path !== '/reg';
+  },
   methods: {
     loadChatWidget() {
-      // Получаем данные пользователя из localStorage
+    
       const users = JSON.parse(localStorage.getItem('users')) || [];
       const userEmail = localStorage.getItem('userEmail');
       const currentUser = users.find(user => user.email === userEmail) || {};
 
-      // Создаем объект для передачи данных в виджет
+   
       window.juswidgetVariables = {
         start: {
           id: currentUser.id || 'guest',
@@ -39,23 +43,24 @@ export default {
         },
       };
 
-      // Добавляем скрипт для чат-виджета динамически
+     
       const script = document.createElement('script');
       script.src =
-        'https://bot.jaicp.com/chatwidget/ATdbrIxY:891c02dcdb4c57c21183bf9fd270961a542b58b4/justwidget.js?force=true';
+        'https://bot.jaicp.com/chatwidget/IPbHKtEw:597197a5683714ccdc4cbcb195b17b984aab1eb1/justwidget.js?force=true';
       script.async = true;
 
-      // Обработчик загрузки скрипта
+ 
+
+
       script.onload = () => {
         console.log('Чат-виджет успешно загружен');
       };
 
-      // Обработчик ошибок загрузки скрипта
+   
       script.onerror = () => {
         console.error('Ошибка загрузки чат-виджета');
       };
 
-      // Добавляем скрипт в DOM
       document.head.appendChild(script);
     },
   },
@@ -66,7 +71,7 @@ export default {
 </script>
 
 <style>
-/* Стили для чат-виджета */
+
 .jus-widget-container {
   font-family: Arial, sans-serif;
   background-color: #f5f5f5;
@@ -86,11 +91,15 @@ export default {
   padding: 10px;
   font-size: 14px;
 }
-/* Перемещение кнопки выше и левее */
+
 .jus-widget-button {
-  position: fixed; /* Фиксированное положение на экране */
-  bottom: 120px; /* Расстояние от нижней части экрана */
+  position: fixed;
+  bottom: 120px; 
   margin-left: 20%;
-  z-index: 1000; /* Убедитесь, что кнопка находится поверх других элементов */
+  z-index: 1000; 
+}
+body {
+    display: block;
+    margin: 0px;
 }
 </style>
